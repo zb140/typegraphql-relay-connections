@@ -227,6 +227,29 @@ export function EdgeType<
   return Edge;
 }
 
+export function CountedEdgeType<
+  CursorType extends Cursor = Cursor,
+  NodeType extends NodesType = unknown
+>(
+  nodeType: ClassType<NodeType> | HasConstructor<NodeType>
+): ClassType<RelayEdgeType<CursorType, NodeType>> {
+  @ObjectType(`${nodeType.constructor.name}CountedEdge`, {
+    isAbstract: true,
+    description: `
+    A CountedEdge type is like an Edge type in that it is an intermediate result that is generally returned
+    from the server as part of a ConnectionType which allows rerunning of a query at
+    any given point through its use of cursors.`,
+  })
+  class CountedEdge extends EdgeType<CursorType, NodeType>(nodeType) {
+    @Field(() => Number, {
+      description: `A count of how many things are in the current connection type.`,
+    })
+    count!: number;
+  }
+
+  return CountedEdge;
+}
+
 export class RelayConnectionType<
   CursorType extends Cursor = Cursor,
   EdgeType extends RelayEdgeType<CursorType> = RelayEdgeType<CursorType>
